@@ -1,17 +1,80 @@
-const board=document.querySelector('#gameboard')
+const boarddiv=document.querySelector('#gameboard')
 const resetbtn=document.querySelector('#restartbtn');
-const createPlayer =(name,marker)=>{
-    return {name,marker};
+const Player =(name,marker,turn)=>{
+    
+    return {name,marker,turn};
 } 
-const 
-const Gameboard = (()=>{
-    const playerOne=createPlayer('player 1','O');
-    const playerTwo=createPlayer('player 2','X');
-    let activePlayer=undefined;
-    let isGameOver=undefined;
-    let winner=undefined;
-    let gameboard=[];
-    const winningCondition =[
+const gameBoard =(()=>{
+    //generate board array
+    let board=[];
+
+    const createBoard =()=>{
+
+    for(let i=0;i<9;i++)
+    board.push('');
+
+    board.forEach((item)=>{
+        const squares=document.createElement('div');
+             squares.classList.add('cell');
+             boarddiv.append(squares);
+    });
+    let cell=document.querySelectorAll('.cell');
+    //add event listeners on each cell
+    let cells=Array.from(cell);
+    cells.forEach((cell,index)=>{
+        cell.addEventListener('click',(e)=>{
+            //display active player marker
+            cell.classList.add('bold');
+
+            if(game.playerOne.turn==true && game.winner==null && e.target.textContent=='')
+            {
+                cell.innerHTML=game.playerOne.marker;
+                board[index]=game.playerOne.marker;
+                cell.style.pointerEvents='none';
+                game.remainingSpots-=1;
+                game.playerOne.turn=false;
+                game.playerTwo.turn=true;
+                console.log(board);
+            }
+            else if(game.playerTwo.turn==true && game.winner==null && e.target.textContent=='')
+            {
+                cell.innerHTML=game.playerTwo.marker;
+                board[index]=game.playerTwo.marker;
+                cell.style.pointerEvents='none';
+                game.remainingSpots-=1;
+                game.playerOne.turn=true;
+                game.playerTwo.turn=false;
+                console.log(board);
+            }
+            else
+            return;
+
+            game.checkWinner();
+            
+        });
+    });
+}
+createBoard();
+
+    return{
+        createBoard,
+        board
+    };
+})()
+
+const game = (()=>{
+   
+    //declare players
+    const playerOne=Player('player 1','O',true);
+    const playerTwo=Player('player 2','X',false);
+    //starting point
+    
+    let winnerDeclared=false;
+    let remainingSpots=9;
+    let winner=null;
+
+     //winning conditions
+     const winningCondition =[
         [0,1,2],
         [3,4,5],
         [6,7,8],
@@ -21,79 +84,49 @@ const Gameboard = (()=>{
         [0,4,8],
         [2,4,6]
     ];
-    const createGame=()=>{
-       
-        isGameOver=false;
-        activePlayer=playerOne;
-       for(let i=0;i<9;i++)
-        {
-            gameboard[i]="";
-       }
-       for(let i=0;i<9;i++)
-         {
-             const squares=document.createElement('div');
-             squares.classList.add('cell');
-             board.append(squares);
-         }
-    
-    
-       let cell=document.querySelectorAll('.cell');
-       
-    let cells=Array.from(cell);
-    cells.forEach((cell,index)=>{
-        cell.addEventListener('click',()=>{
-            cell.classList.add('bold');
-            cell.innerHTML=activePlayer.marker;
-            gameboard[index]=activePlayer.marker;
-            checkWinner();
-            checkTie();
-            cell.style.pointerEvents="none";
-            changePlayer();
-    
-        });
-    });
+    const resetBoard =()=>{
+        boarddiv.innerHTML="";
+        gameBoard.board.length=0;
+        winner=null;
+        remainingSpots=9;
+        winnerDeclared=false;
+        playerOne.turn=true;
+        playerTwo.turn=false;
+        gameBoard.createBoard();
     }
-    const checkTie=()=>{
-        if(!gameboard.includes("") && isGameOver===false)
-        {
-            console.log('game is a tie');
-            restartGame();
-        }
-    }
-    const changePlayer = () =>{
-        if(activePlayer===playerOne)
-        activePlayer=playerTwo;
-        else
-        activePlayer=playerOne;
-    }
+
     const checkWinner =()=>{
-        winningCondition.forEach((item)=>{
-            if(gameboard[item[0]]===activePlayer.marker && gameboard[item[1]]===activePlayer.marker && gameboard[item[2]]===activePlayer.marker)
-            {
-            isGameOver=true;
-            winner=activePlayer.name;
-            console.log(`winner is ${winner}`);
-            console.log(gameboard);
+        
+        winningCondition.forEach((item,index)=>{
+        if(gameBoard.board[item[0]]===playerOne.marker && gameBoard.board[item[1]]===playerOne.marker && gameBoard.board[item[2]]===playerOne.marker)
+        {
+            console.log(`${playerOne.name} wins!`);
+            winnerDeclared=true;
+            winner=playerOne;
+            resetBoard();
+        }
+        else if(gameBoard.board[item[0]]===playerTwo.marker && gameBoard.board[item[1]]===playerTwo.marker && gameBoard.board[item[2]]===playerTwo.marker)
+        {
+            console.log(`${playerTwo.name} wins!`);
+            winnerDeclared=true;
+            winner=playerTwo;
+            resetBoard();
         }
         });
-        if(!isGameOver)
-        console.log('no winner yet');
-        else
+        if(game.remainingSpots==0 && game.winner==null)
         {
-            restartGame();
+            console.log('tie game');
+        resetBoard();
         }
+        
     }
-       
-    const restartGame=()=>{
-      board.style.pointerEvents="auto";
-      board.innerHTML="";
-      console.log('game is restarted');
-      gameboard.length=0;
-      createGame();
-
-    }
-    
-    createGame();
-return{createGame,checkTie,checkWinner,restartGame,gameboard};
+    return{
+        remainingSpots,
+        checkWinner,
+        winnerDeclared,
+        playerOne,
+        playerTwo,
+        winner,
+        resetBoard
+    };
 })();
-
