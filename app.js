@@ -113,9 +113,16 @@ const game = (()=>{
             resetBoard();
         }
         });
-        if(game.remainingSpots==0 && game.winner==null)
+        // if(remainingSpots==0 && winner==null && winnerDeclared==false)
+        // {
+        //     console.log('tie game');
+        //     winner='tie';
+        // resetBoard();
+        // }
+        if(!gameBoard.board.includes("") && winnerDeclared==false && winner==null)
         {
             console.log('tie game');
+            winner='tie';
         resetBoard();
         }
         
